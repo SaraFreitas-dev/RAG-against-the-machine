@@ -1,5 +1,9 @@
 🚧 **Under Construction** 🚧
 
+<p align="center">
+  <img src="./assets/imgs/basic_idea.png" alt="Basic idea" width="170">
+</p>
+
 ```text
 In practice, RAG has four stages:
 • Indexing: organise the data so it can be searched.
@@ -34,4 +38,10 @@ On the reference datasets, the system must reach at least 80 % recall@5 on docs 
 
 With the right snippets retrieved, the system generates a natural-language answer using Qwen/Qwen3-0.6B. 
 Pass the retrieved context to the model within its token budget, and produce structured JSON following the provided pydantic models.
+
+Performances
+Your system must respect some minimal performances, listed below:
+• Indexing time: at most 5 minutes for the whole corpus.
+• Retrieval throughput: at most 90 seconds for 200 questions.
+• Recall@5: at least 80% on docs questions and 50% on code questions.
 ```
