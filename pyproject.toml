@@ -1,0 +1,32 @@
+[project]
+name = "RAG-against-the-machine"
+version = "1.0.0"
+description = "AI-powered RAG system in Python for codebase question answering using BM25/TF-IDF retrieval, chunking, and Qwen3-0.6B."
+authors = [{name = "sarfreit"}]
+requires-python = ">=3.10"
+dependencies = [
+    "accelerate>=1.14.0",
+    "bm25s>=0.3.10",
+    "fire>=0.7.1",
+    "langchain-text-splitters>=1.1.2",
+    "pydantic>=2.13.4",
+    "torch>=2.13.0",
+    "transformers>=5.14.1",
+]
+
+[dependency-groups]
+dev = ["flake8", "mypy"]
+
+[tool.uv.sources]
+llm-sdk = { path = "./llm_sdk" }
+
+[tool.flake8]
+exclude = ["__pycache__", ".venv", ".mypy_cache"]
+
+[tool.mypy]
+exclude = ["__pycache__", ".venv"]
+disable_error_code = ["import-untyped"]
+
+[[tool.mypy.overrides]]
+ignore_missing_imports = true
+follow_imports = "skip"
