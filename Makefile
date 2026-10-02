@@ -1,17 +1,31 @@
+export PATH := $(HOME)/.local/bin:$(PATH)
+
+# Store cache
+GOINFRE := $(firstword $(wildcard /goinfre/$(USER) $(HOME)/goinfre))
+
+ifneq ($(GOINFRE),)
+export UV_CACHE_DIR := $(GOINFRE)/.cache/uv
+export HF_HOME := $(GOINFRE)/.cache/huggingface
+endif
+
+VENV := .venv
+ifneq ($(filter /mnt/%,$(CURDIR)),)
+VENV := $(HOME)/.venvs/$(notdir $(CURDIR))
+export UV_PROJECT_ENVIRONMENT := $(VENV)
+endif
+
 all: install run
 
 # INSTALL ALL REQUIREMENTS
 install:
 	@if command -v uv >/dev/null 2>&1; then \
 		echo "✅ uv is already installed ($$(uv --version))"; \
-	elif [ -f "$$HOME/.local/bin/uv" ]; then \
-		echo "✅ uv found in $$HOME/.local/bin"; \
 	else \
 		echo "📦 uv not found. Installing..."; \
 		curl -LsSf https://astral.sh/uv/install.sh | sh; \
 	fi
 	@echo "📦 Syncing dependencies..."
-	@PATH="$$HOME/.local/bin:$$PATH" uv sync
+	@uv sync
 	@echo "✅ Dependencies ready"
 
 # RUN THE PROGRAM
@@ -57,7 +71,7 @@ fclean: clean
 	@echo "\n🧹 Cleaning generated output..."
 	@rm -rf data/output/*
 	@echo "💣 Removing virtual environment..."
-	@rm -rf .venv
+	@rm -rf $(VENV)
 	@echo "\n✅ Full clean complete\n"
 
 # HELP - LIST OF COMMANDS

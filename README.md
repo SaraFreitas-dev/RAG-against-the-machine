@@ -44,4 +44,35 @@ Your system must respect some minimal performances, listed below:
 • Indexing time: at most 5 minutes for the whole corpus.
 • Retrieval throughput: at most 90 seconds for 200 questions.
 • Recall@5: at least 80% on docs questions and 50% on code questions.
+
+RAG Pipeline
+│
+├── 📂 data/raw
+│       ↓
+├── ✂️ Chunking
+│       ↓
+├── 📚 Indexing
+│       ↓
+├── 🔎 Retrieval
+│       ↓
+├── 🧩 Top-K Context
+│       ↓
+└── 🤖 Qwen → Answer
+
 ```
+
+## 📚 Resources
+
+Resources that helped me understand the concepts behind this project.
+
+### 🎥 RAG Fundamentals & Chunking
+
+<a href="https://www.youtube.com/watch?v=CSvn8BNnGe4">
+  <img
+    src="https://img.youtube.com/vi/CSvn8BNnGe4/maxresdefault.jpg"
+    width="600"
+    alt="Chunking in RAG">
+</a>
+
+> **Chunking in RAG (with hands-on in LangChain and LlamaIndex) - RAG video series**  
+> Ingestion in RAG · What is Chunking · Types of chunking
