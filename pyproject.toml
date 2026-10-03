@@ -21,7 +21,7 @@ dev = ["flake8", "mypy"]
 llm-sdk = { path = "./llm_sdk" }
 
 [tool.flake8]
-exclude = ["__pycache__", ".venv", ".mypy_cache"]
+exclude = ["__pycache__", ".venv", ".mypy_cache", "data/"]
 
 [tool.mypy]
 exclude = ["__pycache__", ".venv"]
