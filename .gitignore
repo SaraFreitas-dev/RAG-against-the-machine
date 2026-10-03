@@ -1,8 +1,8 @@
 .venv
 __pycache__
 .vscode/
-   .mypy_cache/
-   *.pyc
+.mypy_cache/
+*.pyc
 data/raw/vllm-0.10.1
 data/processed/
 data/output/
