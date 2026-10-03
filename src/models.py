@@ -1,4 +1,5 @@
-from pydantic import (BaseModel, Field)
+from pydantic import (BaseModel, Field, model_validator) # pyright: ignore[reportMissingImports]
+from typing_extensions import Self
 from typing import List
 import uuid
 
@@ -8,8 +9,16 @@ class MinimalSource(BaseModel):
     The MinimalSource model represents a single source of information
     """
     file_path: str
-    first_character_index: int
-    last_character_index: int
+    first_character_index: int = Field(ge=0)
+    last_character_index: int = Field(ge=0)
+
+    @model_validator(mode='after')
+    def check_range(self) -> Self:
+        """Ensure the end index is not before the start index"""
+        if self.last_character_index < self.first_character_index:
+            raise ValueError("Index error: "
+                             "last_character_index < first_character_index")
+        return self
 
 
 class UnansweredQuestion(BaseModel):
@@ -56,7 +65,7 @@ class StudentSearchResults(BaseModel):
     Represents the search results
     """
     search_results: List[MinimalSearchResults]
-    k: int
+    k: int = Field(ge=0)
 
 
 class StudentSearchResultsAndAnswer(BaseModel):
@@ -64,4 +73,4 @@ class StudentSearchResultsAndAnswer(BaseModel):
     Represents the search results with answer
     """
     search_results: List[MinimalAnswer]
-    k: int
+    k: int = Field(ge=0)
