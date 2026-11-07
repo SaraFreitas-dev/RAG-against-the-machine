@@ -1,4 +1,4 @@
-from pydantic import (BaseModel, Field, model_validator) # pyright: ignore[reportMissingImports]
+from pydantic import (BaseModel, Field, model_validator)
 from typing_extensions import Self
 from typing import List
 import uuid
@@ -15,7 +15,10 @@ class MinimalSource(BaseModel):
     @model_validator(mode='after')
     def check_range(self) -> Self:
         """Ensure the end index is not before the start index"""
-        if self.last_character_index < self.first_character_index:
+        if (
+            (self.last_character_index < self.first_character_index)
+            or (self.last_character_index - self.first_character_index >= 2000)
+        ):
             raise ValueError("Index error: "
                              "last_character_index < first_character_index")
         return self
