@@ -11,3 +11,7 @@ Searcher, com os comandos search e search_dataset. Com o Fire já montado no __m
 evaluate. Faz isto antes do answer generator. Os 80% de recall nas perguntas de docs e 50% nas de código é que decidem a nota. Precisas de medir cedo para afinar o chunking e a tokenização, por exemplo partir snake_case e CamelCase em palavras.
 Answer generator. Fica para o fim. É o que conta menos para a avaliação e o mais lento de testar.
 """
+from models import MinimalSource, Chunk
+
+
+class Chunker:

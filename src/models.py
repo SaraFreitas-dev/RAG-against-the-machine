@@ -14,14 +14,26 @@ class MinimalSource(BaseModel):
 
     @model_validator(mode='after')
     def check_range(self) -> Self:
-        """Ensure the end index is not before the start index"""
-        if (
-            (self.last_character_index < self.first_character_index)
-            or (self.last_character_index - self.first_character_index >= 2000)
-        ):
+        """Ensure the end index is not before the start index
+        and its max size"""
+        if (self.last_character_index < self.first_character_index):
             raise ValueError("Index error: "
                              "last_character_index < first_character_index")
+        if (self.last_character_index - self.first_character_index > 2000):
+            raise ValueError("Index error: "
+                             "Source wider than 2000 characters")
         return self
+
+
+class Chunk(BaseModel):
+    """
+    A piece of a corpus file: its address in the file, its original text,
+    and the text used for indexing (the original text plus context such as
+    the file path, the section heading or the class name)
+    """
+    source: MinimalSource
+    text: str
+    index_text: str
 
 
 class UnansweredQuestion(BaseModel):

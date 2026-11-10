@@ -32,8 +32,9 @@
 8. [🧭 The lost-context problem](#-8-the-lost-context-problem)
 9. [🧪 Invariants: what must always be true](#-9-invariants-what-must-always-be-true)
 10. [📊 Measuring the effect of your choices](#-10-measuring-the-effect-of-your-choices)
-11. [🚫 Common misconceptions](#-11-common-misconceptions)
-12. [✅ Check your understanding](#-12-check-your-understanding)
+11. [🔧 From concept to code](#-11-from-concept-to-code)
+12. [🚫 Common misconceptions](#-12-common-misconceptions)
+13. [✅ Check your understanding](#-13-check-your-understanding)
 
 ---
 
@@ -422,7 +423,214 @@ A table you could fill in for your README:
 
 ---
 
-## 🚫 11. Common misconceptions
+## 🔧 11. From concept to code
+
+> [!NOTE]
+> 🧰 This section is the bridge between the ideas above and your own implementation. It shows the **shape of the data**, the **order of the steps**, the **Python tools** you'll reach for, and **how to test** each piece. It does **not** give you the chunker: the examples use toy inputs, and every decision that makes the design yours is left as a question. 🧭
+
+### 🧱 11.1 The shape of the data
+
+Before writing any function, decide what a chunk **is** in your program. Three facts are enough to locate it:
+
+```text
+(file_path, first, last)        e.g. ("data/raw/vllm-0.10.1/docs/serve.md", 27, 52)
+```
+
+| Question | Options to consider |
+|---|---|
+| Plain tuple, `NamedTuple`, `dataclass` or pydantic model? | Chunks are internal data, and there may be tens of thousands of them. Doc 09, Section 10 discusses the cost of pydantic here |
+| Store the text too? | It's always `file_text[first:last]`. Storing it is convenient for indexing and answering; not storing it saves memory (doc 06, Section 7) |
+| What does a chunking **function** return? | A useful habit: return **ranges** (`list[tuple[int, int]]`) over the text it was given, and attach the `file_path` one level up. Ranges are easy to test (Section 11.6) |
+
+> [!TIP]
+> 🎯 A function that takes a string and returns ranges doesn't need files, paths or the corpus to be tested. You can feed it a three-line string and check the numbers by hand.
+
+### 🗺️ 11.2 The flow, in pseudocode
+
+```text
+for each file under the corpus root:
+    skip it if its extension isn't one you index          (doc 01, Section 1)
+    read its text                                          (skip the file if it can't be decoded)
+    pick a strategy from the extension                     (Markdown/text or Python)
+    ranges = strategy(text)                                 → structure-aware cuts
+    for each range wider than max_chunk_size:
+        split it again, one rung lower on the ladder       (Section 5)
+    optionally merge tiny neighbours                        (staying under the maximum)
+    check the invariants                                    (Section 9)
+    keep (file_path, first, last) for each range
+```
+
+Every line of this is a decision you'll explain in the README. The pseudocode only fixes the **order**: read → cut by structure → fix sizes → check → store.
+
+### 📂 11.3 Files and paths
+
+**Walking the corpus.** `pathlib` can list every file under a folder:
+
+```python
+from pathlib import Path
+
+root = Path("some/folder")              # in your program, this comes from configuration, not hard-coded
+for path in sorted(root.rglob("*")):
+    if path.is_file():
+        print(path.suffix, path.as_posix())
+```
+
+| Tool | Why it matters here |
+|---|---|
+| `path.suffix` | The extension (`.md`, `.py`…): your strategy switch |
+| `path.as_posix()` | Always `/`, even on Windows: the output format the grader compares (doc 01, Section 7) |
+| `sorted(...)` | `rglob` order isn't guaranteed. Sorting makes runs **deterministic** (invariant 6) |
+| `path.relative_to(other)` | Turns an absolute path into a relative one, if you ever need it |
+
+> [!WARNING]
+> 🧭 Print a few `as_posix()` results and compare them **character by character** with a `file_path` from the ground-truth dataset. If the prefix differs, every question fails.
+
+**Reading a file.** Two details decide whether your offsets match the grader's:
+
+```python
+with open(path, encoding="utf-8", newline="") as f:
+    text = f.read()
+```
+
+| Argument | Effect |
+|---|---|
+| `encoding="utf-8"` | Offsets are counted on decoded characters, not bytes (doc 01, Section 5) |
+| `newline=""` | Keeps line endings **exactly** as they are in the file. Without it, `\r\n` becomes `\n` and every later offset shifts by one per line |
+
+> [!NOTE]
+> 🔬 Whether you need `newline=""` depends on the corpus. Don't guess: read a few reference sources both ways and see which one lands on sensible text (doc 01, Section 9).
+
+A file that isn't valid UTF-8 raises `UnicodeDecodeError`. Catch it **per file**, so one bad file is skipped instead of stopping the whole run (doc 10, Section 7).
+
+### 📍 11.4 Tracking offsets while reading lines
+
+Most rungs of the ladder (headings, paragraphs, lines) are found by walking the text **line by line**. The key tool is `splitlines(keepends=True)`, plus a running offset:
+
+```python
+text = "# Serve\nRun `vllm serve`.\n\n## Port\nDefault is 8000.\n"
+
+offset = 0
+for line in text.splitlines(keepends=True):
+    print(offset, repr(line))
+    offset += len(line)
+```
+
+```text
+0 '# Serve\n'
+8 'Run `vllm serve`.\n'
+26 '\n'
+27 '## Port\n'
+35 'Default is 8000.\n'
+```
+
+| Detail | Why |
+|---|---|
+| `keepends=True` | Each line keeps its `\n`, so `len(line)` counts it. Without it, the offset drifts by 1 per line 😱 |
+| `offset` before `+=` | It's the position where **this** line starts, in the original text |
+| Blank line `'\n'` at 26 | Paragraph boundaries are visible as lines that are only whitespace |
+
+> [!TIP]
+> 🧩 From here, ask yourself the Markdown questions in code form: *"which lines start a section?"*, *"how do I know I'm inside a fenced code block?"* (hint: a flag that flips each time a fence line appears), *"where does a section end?"* (where the next one starts). The offsets you print are exactly the `first` values you need.
+
+`re.finditer` is another way to get positions: each match's `m.start()` and `m.end()` are offsets in the original string.
+
+```python
+import re
+
+for m in re.finditer(r"\n\n", "a\n\nb\n\nc"):
+    print(m.start(), m.end())        # 1 3, then 4 6
+```
+
+### 🐍 11.5 Python: from line numbers to characters
+
+`ast` gives you **line numbers** (1-based). The output needs **characters** (0-based). Build a table of line starts once per file:
+
+```python
+code = "import os\n\n@deco\ndef f():\n    return 1\n\nclass A:\n    def m(self):\n        pass\n"
+
+line_starts = [0]
+for line in code.splitlines(keepends=True):
+    line_starts.append(line_starts[-1] + len(line))
+
+print(line_starts)   # [0, 10, 11, 17, 26, 39, 40, 49, 66, 79]
+```
+
+Read it as: **line *n* starts at `line_starts[n - 1]`**, and ends where line *n + 1* starts. The last value is `len(code)`.
+
+Now, what `ast` says about the same code:
+
+```python
+import ast
+
+tree = ast.parse(code)
+for node in tree.body:
+    decorators = [d.lineno for d in getattr(node, "decorator_list", [])]
+    print(type(node).__name__, node.lineno, node.end_lineno, decorators)
+```
+
+```text
+Import 1 1 []
+FunctionDef 4 5 [3]
+ClassDef 7 9 []
+```
+
+| Observation | Question it raises for your design |
+|---|---|
+| `f` starts at line **4**, its decorator at line **3** | Which line should the chunk start at? |
+| `end_lineno` is **inclusive** (line 5 is part of `f`) | Which entry of `line_starts` gives the end **after** line 5? |
+| Line 2 and line 6 are blank, between definitions | Do they belong to the previous chunk, the next one, or neither? |
+| `tree.body` only lists **top-level** nodes | Where do you find the methods of `A`, for the next rung of the ladder? (look at `node.body`) |
+
+A file that isn't valid Python makes `ast.parse` raise `SyntaxError`:
+
+```python
+try:
+    tree = ast.parse(source)
+except SyntaxError:
+    ...   # which strategy do you fall back to? Never crash (doc 10).
+```
+
+### 🧪 11.6 Testing a chunker without the corpus
+
+**Hand-made inputs with known answers.** The worked example from doc 01 already gives you one:
+
+```text
+text     = "# Serve\nRun `vllm serve`.\n\n## Port\nDefault is 8000.\n"
+expected = [(0, 27), (27, 52)]          # one chunk per heading
+```
+
+Write a few more, each targeting one trap:
+
+| Input | What it should prove |
+|---|---|
+| A `# comment` inside a fenced code block | Not treated as a heading |
+| One section longer than `max_chunk_size` | Gets split, and every piece respects the maximum |
+| A decorated function | The decorator lands in the function's chunk |
+| A file that doesn't parse | No crash, still produces chunks |
+| An empty file / a file with only blank lines | No empty chunks |
+
+**An invariant checker.** The invariants from Section 9, turned into checks you can run on any file:
+
+```python
+def check_ranges(text: str, ranges: list[tuple[int, int]], max_size: int) -> None:
+    for first, last in ranges:
+        assert 0 <= first < last <= len(text), (first, last)
+        assert last - first <= max_size, (first, last)
+        assert text[first:last].strip(), (first, last)
+```
+
+| Check | Invariant |
+|---|---|
+| `0 <= first < last <= len(text)` | 1 |
+| `last - first <= max_size` | 2 💣 |
+| `text[first:last].strip()` is not empty | 7 |
+
+> [!TIP]
+> 🔍 Invariants 4 and 5 (no unintended gaps or overlaps) need the ranges **sorted**: then each `first` can be compared with the previous `last`. Add that check yourself, depending on whether your design allows gaps (blank lines between definitions?) or overlap. Then run the checker over **every file** of `data/raw/`: one failure in 10,000 chunks is worth finding today. 🐛
+
+---
+
+## 🚫 12. Common misconceptions
 
 | ❌ Myth | ✅ Reality |
 |---|---|
@@ -436,7 +644,7 @@ A table you could fill in for your README:
 
 ---
 
-## ✅ 12. Check your understanding
+## ✅ 13. Check your understanding
 
 Try first, then open the hints. 🧩
 
