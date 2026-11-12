@@ -15,7 +15,10 @@ dependencies = [
 ]
 
 [dependency-groups]
-dev = ["flake8", "mypy"]
+dev = [
+    "flake8",
+    "mypy",
+]
 
 [tool.uv.sources]
 llm-sdk = { path = "./llm_sdk" }

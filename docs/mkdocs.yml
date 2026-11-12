@@ -1,0 +1,72 @@
+
+site_name: RAG Against the Machine
+site_description: Learning notes and documentation for the 42 RAG project
+site_author: 42 Student
+
+docs_dir: docs
+site_dir: site
+
+theme:
+  name: material
+  language: en
+  palette:
+    - scheme: slate
+      primary: deep purple
+      accent: purple
+      toggle:
+        icon: material/brightness-7
+        name: Switch to light mode
+    - scheme: default
+      primary: deep purple
+      accent: purple
+      toggle:
+        icon: material/brightness-4
+        name: Switch to dark mode
+
+  features:
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - pymdownx.tabbed:
+      alternate_style: true
+  - toc:
+      permalink: true
+
+nav:
+  - Home: README.md
+
+  - Study RAG:
+      - Understanding RAG:
+          - What is RAG?: Study_RAG/understand_RAG/00-what-is-rag.md
+          - Corpus and Offsets: Study_RAG/understand_RAG/01-corpus-and-offsets.md
+          - Chunking: Study_RAG/understand_RAG/02-chunking.md
+          - Tokenization: Study_RAG/understand_RAG/03-tokenization.md
+          - TF-IDF: Study_RAG/understand_RAG/04-tf-idf.md
+          - BM25: Study_RAG/understand_RAG/05-bm25.md
+          - Inverted Index: Study_RAG/understand_RAG/06-inverted-index.md
+          - Evaluation: Study_RAG/understand_RAG/07-evaluation.md
+          - Augment and Generate: Study_RAG/understand_RAG/08-augment-and-generate.md
+          - Pydantic: Study_RAG/understand_RAG/09-pydantic.md
+          - Robust CLI: Study_RAG/understand_RAG/10-robust-cli.md
+          - Embeddings and Hybrid: Study_RAG/understand_RAG/11-embeddings-and-hybrid.md
+
+      - Chunking Tools:
+          - AST: Study_RAG/chunking_tools/2.1_ast.md
+          - Regular Expressions: Study_RAG/chunking_tools/2.2_re.md
+          - Bisect: Study_RAG/chunking_tools/2.3_bisect.md
+          - Tokenize: Study_RAG/chunking_tools/2.4_tokenize.md
+          - Textwrap: Study_RAG/chunking_tools/2.5_textwrap.md
+          - Pathlib: Study_RAG/chunking_tools/2.6_pathlib.md
