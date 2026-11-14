@@ -62,11 +62,14 @@ class Chunker:
 
                     # Group the decorators into the same function chunk
                     if (
-                        isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef))
+                        isinstance(node, (ast.FunctionDef,
+                                          ast.AsyncFunctionDef,
+                                          ast.ClassDef))
                         and node.decorator_list
                     ):
                         first_decorator_line = min(
-                            decorator.lineno for decorator in node.decorator_list
+                            decorator.lineno for
+                            decorator in node.decorator_list
                         )
                         start = line_starts[first_decorator_line - 1]
 
@@ -82,7 +85,7 @@ class Chunker:
                         blocks.append((start, end))
                     previous_end = end
                 previous_was_import = is_import
-                
+
             # Include any remaining content at the end of the file
             if previous_end < len(text):
                 tail = text[previous_end:]
@@ -93,7 +96,6 @@ class Chunker:
 
         except SyntaxError:
             return [(0, len(text))] if text else []
-        
 
     # Markdown / text strategy
     def _chunk_markdown(self, text: str) -> list[tuple[int, int]]:
@@ -101,14 +103,16 @@ class Chunker:
 
     def _get_markdown_boundaries(self, text: str) -> list[tuple[int, int]]:
         pass
-    
+
     # Shared logic
-    def _split_large_range(self, text: str, start: int, end: int) -> list[tuple[int, int]]:
+    def _split_large_range(self, text: str, start: int,
+                           end: int) -> list[tuple[int, int]]:
         """
         Receives big chunks and divides it into chunks no longer
         than the max_size limit
         """
         pass
 
-    def _build_chunks(self, text: str, file_path: str, ranges: list[tuple[int, int]]) -> list[Chunk]:
+    def _build_chunks(self, text: str, file_path: str,
+                      ranges: list[tuple[int, int]]) -> list[Chunk]:
         pass
