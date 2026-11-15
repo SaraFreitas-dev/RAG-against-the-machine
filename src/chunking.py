@@ -101,9 +101,6 @@ class Chunker:
     def _chunk_markdown(self, text: str) -> list[tuple[int, int]]:
         pass
 
-    def _get_markdown_boundaries(self, text: str) -> list[tuple[int, int]]:
-        pass
-
     # Shared logic
     def _split_large_range(self, text: str, start: int,
                            end: int) -> list[tuple[int, int]]:
