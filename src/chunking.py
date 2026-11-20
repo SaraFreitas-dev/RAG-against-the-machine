@@ -1,5 +1,8 @@
 from .models import MinimalSource, Chunk
 import ast
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_core.documents import Document
+
 
 
 class Chunker:
@@ -21,8 +24,8 @@ class Chunker:
 
     def _get_line_offsets(self, text: str) -> list[int]:
         """
-        Build a table of line starts,
-        including the end of the text.
+        Build a table of line starts, including the end of the text.
+        Converts each line into a position
         """
         line_starts: list[int] = [0]
         for line in text.splitlines(keepends=True):
@@ -108,7 +111,32 @@ class Chunker:
         Receives big chunks and divides it into chunks no longer
         than the max_size limit
         """
-        pass
+        res: list[tuple[int, int]] = []
+        curr_size: int = end - start
+
+        if curr_size <= self.max_size:
+            return [(start, end)]
+
+        section: str = text[start:end]
+        splitter = RecursiveCharacterTextSplitter(
+            chunk_size=self.max_size,
+            chunk_overlap=min(15, self.max_size // 6),
+            length_function=len,
+            add_start_index=True,
+            strip_whitespace=False,
+        )
+
+        chunks: list[Document] = splitter.create_documents([section])
+        for chunk in chunks:
+            doc_start: int = start + chunk.metadata["start_index"]
+            doc_end: int = doc_start + len(chunk.page_content)
+            
+            assert start <= doc_start < doc_end <= end
+            assert doc_end - doc_start <= self.max_size
+            assert text[doc_start:doc_end] == chunk.page_content
+
+            res.append((doc_start, doc_end))
+        return res
 
     def _build_chunks(self, text: str, file_path: str,
                       ranges: list[tuple[int, int]]) -> list[Chunk]:
