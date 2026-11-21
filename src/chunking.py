@@ -4,7 +4,6 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_core.documents import Document
 
 
-
 class Chunker:
     """
     Cuts corpus files into chunks no wider than max_size characters
@@ -14,11 +13,11 @@ class Chunker:
             raise ValueError("max_size must be between 1 and 2000")
         self.max_size: int = max_size
 
-    # Main entry point
+    # -------- Main entry point --------
     def chunk_file(self, text: str, file_path: str) -> list[Chunk]:
         pass
 
-    # Python strategy
+    # -------- Python strategy --------
     def _chunk_python(self, text: str) -> list[tuple[int, int]]:
         pass
 
@@ -100,11 +99,11 @@ class Chunker:
         except SyntaxError:
             return [(0, len(text))] if text else []
 
-    # Markdown / text strategy
+    # -------- Markdown / text strategy --------
     def _chunk_markdown(self, text: str) -> list[tuple[int, int]]:
         pass
 
-    # Shared logic
+    # -------- Shared logic --------
     def _split_large_range(self, text: str, start: int,
                            end: int) -> list[tuple[int, int]]:
         """

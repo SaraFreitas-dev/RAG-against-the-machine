@@ -8,6 +8,7 @@ dependencies = [
     "accelerate>=1.14.0",
     "bm25s>=0.3.10",
     "fire>=0.7.1",
+    "langchain-core>=1.6.6",
     "langchain-text-splitters>=1.1.2",
     "pydantic>=2.13.4",
     "torch>=2.13.0",

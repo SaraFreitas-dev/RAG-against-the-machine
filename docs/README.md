@@ -1,3 +1,6 @@
+python3 -m http.server 3000 --directory docs
+http://localhost:3000/
+
 # Docs — RAG against the machine
 
 Study notes written while building this project. They explain the **concepts** behind each stage of the pipeline for someone who has never worked with RAG before.
