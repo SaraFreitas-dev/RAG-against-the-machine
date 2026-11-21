@@ -3,6 +3,7 @@ import ast
 from langchain_text_splitters import (RecursiveCharacterTextSplitter,
                                       Language)
 from langchain_core.documents import Document
+from pathlib import Path
 
 
 class Chunker:
@@ -16,8 +17,24 @@ class Chunker:
 
     # ---------------- Main entry point ----------------
     def chunk_file(self, text: str, file_path: str) -> list[Chunk]:
-        """Receives the content and the path of the file"""
-        pass
+        """
+        Split a file into chunks based on its file type.
+
+        Select the appropriate chunking strategy for Python, Markdown,
+        or plain text files.
+
+        Return a list of Chunk objects containing the extracted content
+        and their original source references.
+        """
+        ranges: list[tuple[int, int]] = []
+        path = Path(file_path)
+        if path.suffix.lower() == ".py":
+            ranges = self._chunk_python(text)
+        elif path.suffix.lower() == ".md":
+            ranges = self._chunk_markdown(text)
+        else:
+            ranges = self._chunk_text(text)
+        return self._build_chunks(text, file_path, ranges)
 
     # ---------------- Python strategy ----------------
     def _chunk_python(self, text: str) -> list[tuple[int, int]]:
@@ -190,5 +207,21 @@ class Chunker:
 
     def _build_chunks(self, text: str, file_path: str,
                       ranges: list[tuple[int, int]]) -> list[Chunk]:
-        """pass"""
-        pass
+        """
+        Build Chunk objects from character ranges in the original text.
+
+        For each range, create a MinimalSource containing the file path
+        and character offsets, then extract the corresponding text.
+
+        Return a list of Chunk objects with their source references
+        and content for indexing.
+        """
+        chunks: list[Chunk] = []
+        for (start, end) in ranges:
+            source = MinimalSource(file_path=file_path,
+                                   first_character_index=start,
+                                   last_character_index=end)
+            chunks.append(Chunk(source=source,
+                                text=text[start:end],
+                                index_text=text[start:end]))
+        return chunks

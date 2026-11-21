@@ -19,6 +19,7 @@ dependencies = [
 dev = [
     "flake8",
     "mypy",
+    "pytest>=9.2.0",
 ]
 
 [tool.uv.sources]

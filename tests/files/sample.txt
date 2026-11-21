@@ -1,0 +1,32 @@
+RAG Against the Machine - Sample Text
+
+This file is used to test generic text chunking in the vLLM RAG project.
+The chunker should divide the content into smaller sections without changing
+any character in the original source, including spaces and newline characters.
+
+Indexing
+
+A search index stores information so that relevant passages can be located.
+BM25 and TF-IDF are lexical retrieval methods: they score matches between
+query terms and the words found in the indexed documents.
+
+Retrieval
+
+When a user asks how memory is managed, the retriever searches the index
+and returns the most relevant chunks. Each chunk must retain its file path
+and its exact start and end character positions in the original file.
+
+Configuration
+
+Some source files contain settings rather than prose. For example,
+a build configuration may specify which CUDA versions and GPU architectures
+are supported. These details can be relevant to technical questions.
+
+Unicode
+
+Portuguese accents: configuração, informação, coração.
+Other characters: café, 日本語, 中文, and an emoji: 🚀.
+
+Final note
+
+The final paragraph ensures that the chunker also handles the end of a file.

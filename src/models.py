@@ -6,7 +6,10 @@ import uuid
 
 class MinimalSource(BaseModel):
     """
-    The MinimalSource model represents a single source of information
+    Represents the exact location of a chunk within a source file.
+
+    Stores the file path and the start and end character offsets
+    needed to locate the original content.
     """
     file_path: str
     first_character_index: int = Field(ge=0)
@@ -14,8 +17,10 @@ class MinimalSource(BaseModel):
 
     @model_validator(mode='after')
     def check_range(self) -> Self:
-        """Ensure the end index is not before the start index
-        and its max size"""
+        """
+        Validate that the character range is ordered and does not
+        exceed the maximum allowed size of 2000 characters.
+        """
         if (self.last_character_index < self.first_character_index):
             raise ValueError("Index error: "
                              "last_character_index < first_character_index")

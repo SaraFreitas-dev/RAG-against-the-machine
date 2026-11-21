@@ -33,6 +33,10 @@ run:
 debug:
 	uv run python -m pdb -m src
 
+# RUN UNITTESTS
+tests:
+	uv run pytest tests/ -v --color=yes
+
 # CHECK FOR NORM ERRORS
 lint:
 	@echo "🔍 Running flake8 and mypy..."
@@ -246,4 +250,4 @@ help:
 re: fclean install
 
 .PHONY: all install run debug help lint lint-strict \
-	    reset-index clean fclean re
+	    reset-index clean fclean re tests

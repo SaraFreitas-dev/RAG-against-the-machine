@@ -100,13 +100,17 @@ def calculate_sum(a: int, b: int) -> int:
 """
 
     markdown_chunks = chunker._chunk_markdown(markdown_text)
-    
-    print(f"\n=== MARKDOWN CHUNKS ===\n")
+
+    print("\n=== MARKDOWN CHUNKS ===\n")
     for piece_start, piece_end in markdown_chunks:
         print(
             f"[{piece_start}:{piece_end}] "
             f"{repr(markdown_text[piece_start:piece_end])}"
         )
+
+    print("\n=== BUILD CHUNKS ===\n")
+    print(chunker._build_chunks(text, "someting", [(0,3), (3,10)]))
+
 
 if __name__ == "__main__":
     main()
