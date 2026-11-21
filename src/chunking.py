@@ -13,13 +13,27 @@ class Chunker:
             raise ValueError("max_size must be between 1 and 2000")
         self.max_size: int = max_size
 
-    # -------- Main entry point --------
+    # ---------------- Main entry point ----------------
     def chunk_file(self, text: str, file_path: str) -> list[Chunk]:
         pass
 
-    # -------- Python strategy --------
+    # ---------------- Python strategy ----------------
     def _chunk_python(self, text: str) -> list[tuple[int, int]]:
-        pass
+        """
+        Split Python source code into chunks using AST boundaries.
+
+        Identify top-level code blocks and split any blocks that exceed
+        the configured maximum size.
+
+        Return a list of (start, end) character offsets referencing
+        the original source text.
+        """
+        chunk_pieces: list[tuple[int, int]] = []
+        blocks: list[tuple[int, int]] = self._get_python_boundaries(text)
+
+        for start, end in blocks:
+            chunk_pieces.extend(self._split_large_range(text, start, end))
+        return chunk_pieces
 
     def _get_line_offsets(self, text: str) -> list[int]:
         """
@@ -99,11 +113,11 @@ class Chunker:
         except SyntaxError:
             return [(0, len(text))] if text else []
 
-    # -------- Markdown / text strategy --------
+    # ---------------- Markdown / text strategy ----------------
     def _chunk_markdown(self, text: str) -> list[tuple[int, int]]:
         pass
 
-    # -------- Shared logic --------
+    # ---------------- Shared logic ----------------
     def _split_large_range(self, text: str, start: int,
                            end: int) -> list[tuple[int, int]]:
         """
