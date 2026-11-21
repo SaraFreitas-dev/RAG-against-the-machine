@@ -68,6 +68,7 @@ Resources that helped me understand the concepts behind this project.
 ### 🎥 RAG Fundamentals & Chunking
 
 https://dev.to/aiunplugged/rag-chunking-5-strategies-with-runnable-python-580h
+https://medium.com/@nachiket4jan/understanding-markdownheadertextsplitter-in-langchain-674f053fa045
 
 <a href="https://www.youtube.com/watch?v=CSvn8BNnGe4">
   <img

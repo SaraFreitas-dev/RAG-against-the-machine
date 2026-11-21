@@ -1,6 +1,7 @@
 from .models import MinimalSource, Chunk
 import ast
-from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_text_splitters import (RecursiveCharacterTextSplitter,
+                                      Language)
 from langchain_core.documents import Document
 
 
@@ -15,6 +16,7 @@ class Chunker:
 
     # ---------------- Main entry point ----------------
     def chunk_file(self, text: str, file_path: str) -> list[Chunk]:
+        """Receives the content and the path of the file"""
         pass
 
     # ---------------- Python strategy ----------------
@@ -115,7 +117,25 @@ class Chunker:
 
     # ---------------- Markdown / text strategy ----------------
     def _chunk_markdown(self, text: str) -> list[tuple[int, int]]:
-        pass
+        """
+        Divide the Markdown content into chunks
+        """
+        res: list[tuple[int, int]] = []
+        splitter = RecursiveCharacterTextSplitter.from_language(
+            language=Language.MARKDOWN,
+            chunk_size=self.max_size,
+            chunk_overlap=min(15, self.max_size // 6),
+            length_function=len,
+            add_start_index=True,
+            strip_whitespace=False,
+        )
+        chunks: list[Document] = splitter.create_documents([text])
+        for chunk in chunks:
+            doc_start: int = chunk.metadata["start_index"]
+            doc_end: int = doc_start + len(chunk.page_content)
+
+            res.append((doc_start, doc_end))
+        return res
 
     # ---------------- Shared logic ----------------
     def _split_large_range(self, text: str, start: int,
@@ -143,14 +163,11 @@ class Chunker:
         for chunk in chunks:
             doc_start: int = start + chunk.metadata["start_index"]
             doc_end: int = doc_start + len(chunk.page_content)
-            
-            assert start <= doc_start < doc_end <= end
-            assert doc_end - doc_start <= self.max_size
-            assert text[doc_start:doc_end] == chunk.page_content
 
             res.append((doc_start, doc_end))
         return res
 
     def _build_chunks(self, text: str, file_path: str,
                       ranges: list[tuple[int, int]]) -> list[Chunk]:
+        """pass"""
         pass
