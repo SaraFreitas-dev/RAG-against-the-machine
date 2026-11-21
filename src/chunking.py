@@ -137,6 +137,27 @@ class Chunker:
             res.append((doc_start, doc_end))
         return res
 
+    def _chunk_text(self, text: str) -> list[tuple[int, int]]:
+        """
+        Divide the txt files into chunks
+        """
+        res: list[tuple[int, int]] = []
+        splitter = RecursiveCharacterTextSplitter(
+            separators=["\nclass ", "\ndef ", "\n\n", "\n", " ", ""],
+            chunk_size=self.max_size,
+            chunk_overlap=min(15, self.max_size // 6),
+            length_function=len,
+            add_start_index=True,
+            strip_whitespace=False,
+        )
+        chunks: list[Document] = splitter.create_documents([text])
+        for chunk in chunks:
+            doc_start: int = chunk.metadata["start_index"]
+            doc_end: int = doc_start + len(chunk.page_content)
+
+            res.append((doc_start, doc_end))
+        return res
+
     # ---------------- Shared logic ----------------
     def _split_large_range(self, text: str, start: int,
                            end: int) -> list[tuple[int, int]]:
