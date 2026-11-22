@@ -55,13 +55,15 @@ lint-strict:
 	@echo "✅ Strict lint completed"
 
 # CLEANERS
+# CLEANERS
 reset-index:
 	@echo "🗑️ Removing generated index..."
 	@rm -rf data/processed/*
+	@echo "✅ Index removed."
 
 clean:
 	@echo "\n🧹 Cleaning cache files..."
-	@find . -type d -name "\_\_pycache\_\_" -exec rm -rf {} +
+	@find . -type d -name "__pycache__" -exec rm -rf {} +
 	@find . -type f -name "*.pyc" -delete
 	@rm -rf .mypy_cache .pytest_cache .ruff_cache
 	@echo "\n✅ Cache cleaning complete\n"
@@ -104,6 +106,9 @@ help:
 	        echo "🐞 make debug"; \
 	        echo "   Run with Python's pdb debugger."; \
 	        echo ""; \
+			echo "🧪 make tests"; \
+			echo "   Run all automated project tests."; \
+			echo ""; \
 	        echo "────────────────────────────────────────────────"; \
 	        echo ""; \
 	        echo "🧪 CODE QUALITY"; \

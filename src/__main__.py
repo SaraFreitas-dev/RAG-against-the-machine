@@ -14,7 +14,11 @@ def main() -> None:
 
     start = time.perf_counter()
 
-    indexer.build_index()
+    try:
+        indexer.build_index()
+    except (FileNotFoundError, NotADirectoryError, ValueError) as e:
+        print(f"{type(e).__name__}: {e}")
+        raise SystemExit(1)
 
     end = time.perf_counter()
 

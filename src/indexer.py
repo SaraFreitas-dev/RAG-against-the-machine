@@ -29,6 +29,15 @@ class Indexer:
 
         Return a list of paths to Python, Markdown, and plain text files.
         """
+        if not self.root_path.exists():
+            raise FileNotFoundError(
+                f"Source directory does not exist: '{self.root_path}'"
+            )
+
+        if not self.root_path.is_dir():
+            raise NotADirectoryError(
+                f"Source path is not a directory: '{self.root_path}'"
+            )
         paths_lst: list[Path] = []
 
         for path in self.root_path.rglob("*"):
@@ -56,7 +65,7 @@ class Indexer:
                 with path.open("r", encoding="utf-8", newline="") as file:
                     text = file.read()
             except (UnicodeDecodeError, OSError) as e:
-                logging.warning(f"Failed to read file '{path}': {e}")
+                logging.warning(f"WARNING: Failed to read file '{path}': {e}")
                 continue
             chunk_lst.extend(self.chunker.chunk_file(text, str(path)))
         return chunk_lst
@@ -67,10 +76,12 @@ class Indexer:
         build the BM25 index, and persist the index and chunk metadata.
         """
         self.chunks_lst = self._collect_chunks()
-        print("\n==============================================")
-        print(f"There was {len(self.chunks_lst)} chunks generated.")
+        if not self.chunks_lst:
+            raise ValueError("No valid chunks found to build the BM25 index.")
+
+        print("\n============================")
         print("Building BM25 index...")
-        print("==============================================\n")
+        print("============================\n")
 
         # Extracting text of each chunk to the BM25 Analyzer
         corpus: list[str] = [chunk.index_text for chunk in self.chunks_lst]
@@ -81,10 +92,10 @@ class Indexer:
         if self.bm25 is not None:
             self.bm25.index(corpus_tokens)
 
-        print("\n=====================================================")
+        print("\n=============================================")
         print(f"There was {len(self.chunks_lst)} chunks generated.")
         print("Storing indexes...")
-        print("=====================================================\n")
+        print("=============================================\n")
 
         # Transform each chunk on a dictionary with the chunk info
         chunk_store: list[dict[str, Any]] = [
