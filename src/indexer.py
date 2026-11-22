@@ -11,7 +11,6 @@ from typing import Any
 class Indexer:
     """
     Index files from a given root directory.
-
     Recursively discover and read supported files, split their contents
     into chunks using the Chunker, and build a searchable index.
     """
