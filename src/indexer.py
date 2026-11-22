@@ -25,7 +25,6 @@ class Indexer:
     def _discover_files(self) -> list[Path]:
         """
         Recursively discover supported files within the root directory.
-
         Return a list of paths to Python, Markdown, and plain text files.
         """
         if not self.root_path.exists():
@@ -50,10 +49,8 @@ class Indexer:
     def _collect_chunks(self) -> list[Chunk]:
         """
         Read supported files and collect their chunks.
-
         Discover files recursively, read their contents, and use the
         Chunker to split each file into chunks.
-
         Skip unreadable files and return a combined list of Chunk objects.
         """
         chunk_lst: list[Chunk] = []
