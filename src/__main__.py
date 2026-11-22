@@ -1,4 +1,5 @@
 from .chunking import Chunker
+from .indexer import Indexer
 
 
 def main() -> None:
@@ -33,7 +34,11 @@ def traduzir():
 ULTIMO_VALOR = 42
 '''
 
-    chunker = Chunker(max_size=150)
+    try:
+        chunker = Chunker(max_size=2000)
+    except ValueError as e:
+        print(f"ValueError: {e}")
+        return
     blocks = chunker._get_python_boundaries(text)
 
     for i, (start, end) in enumerate(blocks, 1):
@@ -109,7 +114,15 @@ def calculate_sum(a: int, b: int) -> int:
         )
 
     print("\n=== BUILD CHUNKS ===\n")
-    print(chunker._build_chunks(text, "someting", [(0,3), (3,10)]))
+    print(chunker._build_chunks(text, "someting", [(0, 3), (3, 10)]))
+
+    print("\n=== INDEXER: GET PATHS ===\n")
+    indexer = Indexer("data/raw", chunker)
+    chunks = indexer._collect_chunks()
+
+    for chunk in chunks:
+        print("-------------------------")
+        print(chunk)
 
 
 if __name__ == "__main__":
