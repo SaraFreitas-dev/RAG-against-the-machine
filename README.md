@@ -69,6 +69,10 @@ Resources that helped me understand the concepts behind this project.
 
 https://dev.to/aiunplugged/rag-chunking-5-strategies-with-runnable-python-580h
 https://medium.com/@nachiket4jan/understanding-markdownheadertextsplitter-in-langchain-674f053fa045
+https://www.geeksforgeeks.org/nlp/what-is-bm25-best-matching-25-algorithm/
+https://pypi.org/project/BM25/
+https://huggingface.co/blog/xhluca/bm25s
+https://bm25s.github.io/
 
 <a href="https://www.youtube.com/watch?v=CSvn8BNnGe4">
   <img

@@ -2,6 +2,10 @@ from .chunking import Chunker
 from .models import Chunk
 from pathlib import Path
 import logging
+from tqdm import tqdm
+import bm25s
+from bm25s.tokenization import Tokenized
+from typing import Any
 
 
 class Indexer:
@@ -11,9 +15,13 @@ class Indexer:
     Recursively discover and read supported files, split their contents
     into chunks using the Chunker, and build a searchable index.
     """
-    def __init__(self, root_path: str, chunker: Chunker) -> None:
+    def __init__(self, root_path: str,
+                 output_path: str, chunker: Chunker) -> None:
         self.root_path: Path = Path(root_path)
+        self.output_path: Path = Path(output_path)
         self.chunker = chunker
+        self.bm25: bm25s.BM25 | None = None
+        self.chunks_lst: list[Chunk] = []
 
     def _discover_files(self) -> list[Path]:
         """
@@ -43,7 +51,7 @@ class Indexer:
         chunk_lst: list[Chunk] = []
         paths_lst: list[Path] = self._discover_files()
 
-        for path in paths_lst:
+        for path in tqdm(paths_lst, desc="Processing files", unit="file"):
             try:
                 with path.open("r", encoding="utf-8", newline="") as file:
                     text = file.read()
@@ -52,9 +60,39 @@ class Indexer:
                 continue
             chunk_lst.extend(self.chunker.chunk_file(text, str(path)))
         return chunk_lst
+    
+    def build_index(self) -> None:
+        """
+        Discover and chunk source files, tokenize their content,
+        build the BM25 index, and persist the index and chunk metadata.
+        """
+        self.chunks_lst = self._collect_chunks()
+        print("\n==============================================")
+        print(f"There was {len(self.chunks_lst)} chunks generated.")
+        print("Building BM25 index...")
+        print("==============================================\n")
 
-"""rglob("*") path.is_file() path.suffix
-_discover_files()	Encontrar recursivamente os ficheiros .py, .md e .txt
-_collect_chunks()	Ler os ficheiros e chamar chunk_file()
-build_index()	Coordenar a construção do índice BM25
-"""
+        # Extracting text of each chunk to the BM25 Analyzer
+        corpus: list[str] = [chunk.index_text for chunk in self.chunks_lst]
+        # Tokenize the corpus
+        corpus_tokens: Tokenized = bm25s.tokenize(corpus)
+        # Create the BM25 model and index the corpus
+        self.bm25 = bm25s.BM25()
+        if self.bm25 is not None:
+            self.bm25.index(corpus_tokens)
+
+        print("\n=====================================================")
+        print(f"There was {len(self.chunks_lst)} chunks generated.")
+        print("Storing indexes...")
+        print("=====================================================\n")
+
+        # Transform each chunk on a dictionary with the chunk info
+        chunk_store: list[dict[str, Any]] = [
+            chunk.model_dump() for chunk in self.chunks_lst
+        ]
+        # Create the output directory if it doesn't exist
+        self.output_path.mkdir(parents=True, exist_ok=True)
+
+        # Save the BM25 index and chunk metadata
+        if self.bm25 is not None:
+            self.bm25.save(str(self.output_path), corpus=chunk_store)
