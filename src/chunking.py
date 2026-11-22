@@ -19,10 +19,8 @@ class Chunker:
     def chunk_file(self, text: str, file_path: str) -> list[Chunk]:
         """
         Split a file into chunks based on its file type.
-
         Select the appropriate chunking strategy for Python, Markdown,
         or plain text files.
-
         Return a list of Chunk objects containing the extracted content
         and their original source references.
         """
@@ -40,10 +38,8 @@ class Chunker:
     def _chunk_python(self, text: str) -> list[tuple[int, int]]:
         """
         Split Python source code into chunks using AST boundaries.
-
         Identify top-level code blocks and split any blocks that exceed
         the configured maximum size.
-
         Return a list of (start, end) character offsets referencing
         the original source text.
         """
@@ -67,10 +63,8 @@ class Chunker:
     def _get_python_boundaries(self, text: str) -> list[tuple[int, int]]:
         """
         Identify natural boundaries in Python source code.
-
         Return character ranges for top-level code blocks,
         including functions, classes, and other statements.
-
         Large blocks are split during the chunking stage.
         """
         blocks: list[tuple[int, int]] = []
@@ -209,10 +203,8 @@ class Chunker:
                       ranges: list[tuple[int, int]]) -> list[Chunk]:
         """
         Build Chunk objects from character ranges in the original text.
-
         For each range, create a MinimalSource containing the file path
         and character offsets, then extract the corresponding text.
-
         Return a list of Chunk objects with their source references
         and content for indexing.
         """
