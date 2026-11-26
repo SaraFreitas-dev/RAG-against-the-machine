@@ -88,10 +88,8 @@ class Indexer:
         if self.bm25 is not None:
             self.bm25.index(corpus_tokens)
 
-        print("\n=============================================")
         print(f"There was {len(self.chunks_lst)} chunks generated.")
-        print("Storing indexes...")
-        print("=============================================\n")
+        print("Saving BM25 index...")
 
         # Transform each chunk on a dictionary with the chunk info
         chunk_store: list[dict[str, Any]] = [
