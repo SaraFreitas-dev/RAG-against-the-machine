@@ -65,7 +65,7 @@ class Indexer:
                 continue
             chunk_lst.extend(self.chunker.chunk_file(text, str(path)))
         return chunk_lst
-    
+
     def build_index(self) -> None:
         """
         Discover and chunk source files, tokenize their content,
