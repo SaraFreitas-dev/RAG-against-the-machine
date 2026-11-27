@@ -1,7 +1,9 @@
 from .chunking import Chunker
 from .indexer import Indexer
 from .searcher import Searcher
+from .cli import CLI
 import time
+import fire
 
 
 def main() -> None:
@@ -44,4 +46,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    fire.Fire(CLI)
