@@ -10,10 +10,12 @@ class CLI:
     Command-line interface for the RAG project.
     """
 
-    def index(self, max_chunk_size: int = 2000) -> None:
+    def index(self,
+              max_chunk_size: int = 2000,
+              root_path: str = "data/raw",
+              output_path: str = "data/processed/") -> None:
         """
         Build and save the BM25 index from the source files.
-
         Split files into chunks, build the searchable index,
         and display indexing statistics.
         """
@@ -23,7 +25,7 @@ class CLI:
             print(f"ValueError: {e}")
             raise SystemExit(1)
 
-        indexer = Indexer("data/raw", "data/processed", chunker)
+        indexer = Indexer(root_path, output_path, chunker)
         start = time.perf_counter()
 
         try:
@@ -34,6 +36,6 @@ class CLI:
 
         end = time.perf_counter()
 
-        print("Ingestion complete! Indices saved under data/processed/")
+        print(f"Ingestion complete! Indices saved under {output_path}")
         print(f"Total chunks: {len(indexer.chunks_lst)}")
         print(f"Total indexing time: {end - start:.2f} seconds")
