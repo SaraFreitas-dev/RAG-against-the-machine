@@ -25,17 +25,41 @@ class CLI:
             print(f"ValueError: {e}")
             raise SystemExit(1)
 
-        indexer = Indexer(root_path, output_path, chunker)
-        start = time.perf_counter()
-
         try:
+            indexer = Indexer(root_path, output_path, chunker)
+            start = time.perf_counter()
             indexer.build_index()
         except (FileNotFoundError, NotADirectoryError, ValueError) as e:
             print(f"{type(e).__name__}: {e}")
             raise SystemExit(1)
 
         end = time.perf_counter()
-
-        print(f"Ingestion complete! Indices saved under {output_path}")
         print(f"Total chunks: {len(indexer.chunks_lst)}")
         print(f"Total indexing time: {end - start:.2f} seconds")
+        print(f"Ingestion complete! Indices saved under {output_path}")
+
+    def search(self,
+               query: str,
+               k: int = 5,
+               index_path: str = "data/processed") -> None:
+        """
+        Return the top-k sources for a single query
+        """
+        try:
+            searcher = Searcher(index_path)
+            start = time.perf_counter()
+            searcher.load_index()
+            sources = searcher.search(
+                query,
+                k=k,
+            )
+
+            for source in sources:
+                print(source)
+            end = time.perf_counter()
+            print(f"Total searching time: {end - start:.2f} seconds")
+
+        except (FileNotFoundError, NotADirectoryError,
+                ValueError, RuntimeError) as e:
+            print(f"{type(e).__name__}: {e}")
+            raise SystemExit(1)

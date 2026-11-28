@@ -5,7 +5,7 @@ from .cli import CLI
 import time
 import fire
 
-
+"""
 def main() -> None:
     try:
         chunker = Chunker(max_size=2000)
@@ -43,6 +43,7 @@ def main() -> None:
     except (FileNotFoundError, NotADirectoryError, ValueError) as e:
         print(f"{type(e).__name__}: {e}")
         raise SystemExit(1)
+"""
 
 
 if __name__ == "__main__":

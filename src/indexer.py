@@ -16,6 +16,10 @@ class Indexer:
     """
     def __init__(self, root_path: str,
                  output_path: str, chunker: Chunker) -> None:
+        if type(root_path) is not str:
+            raise ValueError("root_path must be a string.")
+        if type(output_path) is not str:
+            raise ValueError("output_path must be a string.")
         self.root_path: Path = Path(root_path)
         self.output_path: Path = Path(output_path)
         self.chunker = chunker

@@ -9,6 +9,8 @@ class Searcher:
     the most relevant source references for a given query.
     """
     def __init__(self, index_path: str) -> None:
+        if type(index_path) is not str:
+            raise ValueError("index_path must be a string.")
         self.index_path: Path = Path(index_path)
         self.bm25: bm25s.BM25 | None = None
 
@@ -37,6 +39,10 @@ class Searcher:
         and return their source references.
         """
         minimal_sources: list[MinimalSource] = []
+        if type(k) is not int:
+            raise ValueError("k must be an integer.")
+        if type(query) is not str:
+            raise ValueError("Query must be a  string.")
         if self.bm25 is None:
             raise RuntimeError("BM25 index has not been loaded.")
         if not query.strip():

@@ -11,6 +11,8 @@ class Chunker:
     Cuts corpus files into chunks no wider than max_size characters
     """
     def __init__(self, max_size: int) -> None:
+        if type(max_size) is not int:
+            raise ValueError("max_size must be an integer")
         if max_size <= 0 or max_size > 2000:
             raise ValueError("max_size must be between 1 and 2000")
         self.max_size: int = max_size

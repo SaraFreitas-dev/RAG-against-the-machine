@@ -74,6 +74,7 @@ https://pypi.org/project/BM25/
 https://huggingface.co/blog/xhluca/bm25s
 https://bm25s.github.io/
 https://github.com/xhluca/bm25s/blob/main/examples/save_and_reload_end_to_end.py?utm_source=chatgpt.com
+https://google.github.io/python-fire/guide/
 
 <a href="https://www.youtube.com/watch?v=CSvn8BNnGe4">
   <img
