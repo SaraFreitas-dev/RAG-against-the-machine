@@ -2,7 +2,6 @@ import time
 from .indexer import Indexer
 from .searcher import Searcher
 from .chunking import Chunker
-from .models import MinimalSource
 
 
 class CLI:
